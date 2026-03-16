@@ -30,13 +30,20 @@ class Campaign extends Model
 
     public function getStatsAttribute(): array
     {
-        $sends = $this->sends;
+        $countsByStatus = $this->sends()
+            ->selectRaw('status, COUNT(*) as aggregate')
+            ->groupBy('status')
+            ->pluck('aggregate', 'status');
+
+        $pending = (int) ($countsByStatus['pending'] ?? 0);
+        $sent    = (int) ($countsByStatus['sent'] ?? 0);
+        $failed  = (int) ($countsByStatus['failed'] ?? 0);
 
         return [
-            'pending' => $sends->where('status', 'pending')->count(),
-            'sent'    => $sends->where('status', 'sent')->count(),
-            'failed'  => $sends->where('status', 'failed')->count(),
-            'total'   => $sends->count(),
+            'pending' => $pending,
+            'sent'    => $sent,
+            'failed'  => $failed,
+            'total'   => $pending + $sent + $failed,
         ];
     }
 }
