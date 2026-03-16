@@ -13,6 +13,10 @@ class CampaignService
      */
     public function dispatch(Campaign $campaign): void
     {
+        if ($campaign->contactList === null) {
+            return;
+        }
+
         $contacts = $campaign->contactList->contacts()
             ->where('status', 'active')
             ->get();
