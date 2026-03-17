@@ -13,14 +13,16 @@ class CampaignService
      */
     public function dispatch(Campaign $campaign): void
     {
-        if ($campaign->contactList === null) {
+        $contactList = $campaign->contactList;
+
+        if (! $contactList) {
             return;
         }
-
-        $contacts = $campaign->contactList->contacts()
+        
+        $contacts = $contactList->contacts()
             ->where('status', 'active')
             ->get();
-
+        
         foreach ($contacts as $contact) {
             $send = CampaignSend::create([
                 'campaign_id' => $campaign->id,
